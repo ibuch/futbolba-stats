@@ -87,7 +87,7 @@ get_equipometro <- function(dat, team_jugadores, n_partidos, team){
   goals_by_player <- get_goals_by_player(last_n_by_player)
   results_by_player <- get_results_by_player(last_n_by_player)
   
-  valoracion <- get_clasificacion(results_by_player, goals_by_player) %>% 
+  valoracion <- get_clasificacion(results_by_player, goals_by_player, 'Partidos > 0') %>% 
     mutate(
       equipo = team
     ) %>%
@@ -97,6 +97,33 @@ get_equipometro <- function(dat, team_jugadores, n_partidos, team){
       Gol_medio = mean(Gol),
       Def_medio = mean(Def)
     )
+  
+  valoracion
+}
+
+get_equipometro_alt <- function(dat, team_jugadores, n_partidos, team){
+  
+  last_n_by_player <- dat %>%
+    filter(Jugador %in% team_jugadores) %>% 
+    group_by(Jugador) %>% 
+    top_n(n_partidos,Fecha)
+  
+  goals_by_player <- get_goals_by_player(last_n_by_player)
+  results_by_player <- get_results_by_player(last_n_by_player)
+  
+  valoracion <- get_clasificacion(results_by_player, goals_by_player, 'Partidos > 0') %>% 
+    mutate(
+      equipo = team
+    ) %>%
+    group_by(equipo) %>% 
+    summarise(
+      PJ = sum(PJ),
+      PG = sum(PG)
+    ) %>% 
+    mutate(
+      porcentaje_victorias = percent(PG / PJ)
+    ) %>% 
+    select(equipo, porcentaje_victorias)
   
   valoracion
 }

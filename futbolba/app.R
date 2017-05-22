@@ -3,6 +3,7 @@ library(shinythemes)
 library(tidyverse)
 library(googlesheets)
 library(rmarkdown)
+library(scales)
 source('./library.R')
 
 torneo_actual <- 'Apertura 2017'
@@ -100,8 +101,8 @@ server <- function(input, output) {
   output$tabla_partidos <- renderTable(partidos)
   
   # equipometro
-  output$equipometro <- renderTable(get_equipometro(raw, input$blancos, input$n_partidos, 'Blancos') %>%
-                                      bind_rows(get_equipometro(raw, input$negros, input$n_partidos, 'Negros')))
+  output$equipometro <- renderTable(get_equipometro_alt(raw, input$blancos, input$n_partidos, 'Blancos') %>%
+                                      bind_rows(get_equipometro_alt(raw, input$negros, input$n_partidos, 'Negros')))
 }
 
 # Run the application 
