@@ -22,7 +22,8 @@ jugadores <- get_jugadores()
 
 goals_by_player <- get_goals_by_player(dat)
 results_by_player <- get_results_by_player(dat)
-clasificacion <- get_clasificacion(results_by_player, goals_by_player)
+clasificacion <- get_clasificacion(results_by_player, goals_by_player, 'Partidos >= 10')
+clasificacion_lt10 <- get_clasificacion(results_by_player, goals_by_player, 'Partidos > 0 & Partidos < 10')
 
 partidos <- dat %>% 
   filter(!is.na(Jugador)) %>% 
@@ -36,10 +37,14 @@ partidos <- dat %>%
 # Define UI for app
 ui <- fluidPage(
   navbarPage(
-    theme = shinytheme("simplex"),
+    theme = shinytheme("flatly"),
     title = "FutbolBA",
     tabPanel("Clasificación",
+             h3("Aquellos con más de 10 partidos"),
              DT::dataTableOutput('tabla_ranking'),
+             br(),
+             h3("Aquellos con menos de 10 partidos"),
+             DT::dataTableOutput('tabla_ranking_lt10'),
              br(),
              shiny::includeMarkdown("clasificacion.md")
     ),
@@ -76,15 +81,23 @@ ui <- fluidPage(
 
 # Define server logic for app
 server <- function(input, output) {
-  # choose columns to display
+  # tabla de los de más de diez partidos
   output$tabla_ranking <- DT::renderDataTable({
-    DT::datatable(clasificacion[, names(clasificacion), drop = FALSE],
+    DT::datatable(clasificacion,
                   rownames = FALSE,
                   options = list(paging = FALSE, searching = FALSE,
                                  lengthMenu = list(-1),
                                  width = 'auto'))
   })
-  output$tabla_partidos <-  renderTable(partidos)
+  # menos de 10 partidos
+  output$tabla_ranking_lt10 <- DT::renderDataTable({
+    DT::datatable(clasificacion_lt10,
+                  rownames = FALSE,
+                  options = list(paging = FALSE, searching = FALSE,
+                                 lengthMenu = list(-1),
+                                 width = 'auto'))
+  })
+  output$tabla_partidos <- renderTable(partidos)
   
   # equipometro
   output$equipometro <- renderTable(get_equipometro(raw, input$blancos, input$n_partidos, 'Blancos') %>%

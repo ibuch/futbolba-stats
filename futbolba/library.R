@@ -15,8 +15,8 @@ get_goals_by_player <- function(dat){
       Partidos = n(),
       GF = sum(GF),
       GC = sum(GC),
-      Goleador = round(GF / Partidos,2),
-      Defensa = round(GC / Partidos,2)
+      Goleador = round(GF / Partidos,1),
+      Defensa = round(GC / Partidos,1)
     ) %>% 
     ungroup()
   
@@ -33,7 +33,7 @@ get_results_by_player <- function(dat){
   output
 }
 
-get_clasificacion <- function(results_by_player, goals_by_player){
+get_clasificacion <- function(results_by_player, goals_by_player, filter_value){
   # initialising tibble
   type_results <-  tibble(Resultado = c('Ganado', 'Empatado', 'Perdido'), 
                           Jugador = c('dummy','dummy','dummy'))
@@ -53,9 +53,9 @@ get_clasificacion <- function(results_by_player, goals_by_player){
       Puntos = Ganado*3 + Empatado*1,
       Coeficiente = round(Puntos / Partidos, 2)
     ) %>%
-    filter(Partidos > 0) %>% 
+    filter_(filter_value) %>% 
     left_join(goals_by_player) %>%
-    rename(Ganados = Ganado, Empatados = Empatado, Perdidos = Perdido) %>% 
+    rename(Ganados = Ganado, Empatados = Empatado, Perdidos = Perdido) %>%
     select(Jugador, PJ = Partidos, PG = Ganados, PE = Empatados, PP = Perdidos, Pts = Puntos, Coef = Coeficiente, GF, GC, Gol = Goleador, Def = Defensa) %>% 
     # default ordering by coeficiente
     arrange(-Coef) %>% 
@@ -64,8 +64,13 @@ get_clasificacion <- function(results_by_player, goals_by_player){
       GF = ifelse(is.nan(GF) | is.na(GF), 0, GF),
       GC = ifelse(is.nan(GC) | is.na(GC), 0, GC),
       Gol = ifelse(is.nan(Gol) | is.na(Gol), 0, Gol),
-      Def = ifelse(is.nan(Def) | is.na(Def), 0, Def)
-    )
+      Def = ifelse(is.nan(Def) | is.na(Def), 0, Def),
+      Dif = GF - GC
+    ) %>% 
+    # creating position as column
+    mutate(`#` = row_number()) %>%
+    # orden tablas a mostrar
+    select(`#`, Jugador, PJ, PG, PE, PP, Pts, Coef, GF, GC, Dif, Gol, Def)
   
   output
 }

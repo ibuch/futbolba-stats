@@ -16,6 +16,8 @@ Leyenda:
 
 **GC**: Goles en contra
 
+**Dif**: Diferencia de goles
+
 **Gol**: Goles a favor por partido (GF / PJ)
 
 **Def**: Goles en contra por partido (GC / PJ)
