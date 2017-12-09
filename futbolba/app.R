@@ -6,7 +6,7 @@ library(rmarkdown)
 library(scales)
 source('./library.R')
 
-torneo_actual <- 'Apertura 2017'
+torneo_actual <- 'Clausura 2017'
 
 # Data processing
 raw <- gs_title('Clasificación FutbolBA') %>% 
@@ -23,6 +23,9 @@ jugadores <- get_jugadores()
 
 goals_by_player <- get_goals_by_player(dat)
 results_by_player <- get_results_by_player(dat)
+# principio temporada
+#clasificacion <- get_clasificacion(results_by_player, goals_by_player, 'Partidos > 0')
+# para final de temporada
 clasificacion <- get_clasificacion(results_by_player, goals_by_player, 'Partidos >= 10')
 clasificacion_lt10 <- get_clasificacion(results_by_player, goals_by_player, 'Partidos > 0 & Partidos < 10')
 
@@ -41,10 +44,10 @@ ui <- fluidPage(
     theme = shinytheme("flatly"),
     title = "FutbolBA",
     tabPanel("Clasificación",
-             h3("Aquellos con más de 10 partidos"),
+             h3("Los de más de 10 partidos"),
              DT::dataTableOutput('tabla_ranking'),
              br(),
-             h3("Aquellos con menos de 10 partidos"),
+             h3("Los de menos de 10 partidos"),
              DT::dataTableOutput('tabla_ranking_lt10'),
              br(),
              shiny::includeMarkdown("clasificacion.md")
